@@ -18,9 +18,9 @@ def generate_launch_description():
   pkg_gazebo_ros = FindPackageShare(package='gazebo_ros').find('gazebo_ros')   
   pkg_share = FindPackageShare(package='sam_bot_description').find('sam_bot_description')
   default_launch_dir = os.path.join(pkg_share, 'launch')
-  default_model_path = os.path.join(pkg_share, '/src/description/turtlebot.urdf')
+  default_model_path = os.path.join(pkg_share, 'src/description/turtlebot.urdf')
   robot_localization_file_path = os.path.join(pkg_share, 'config/ekf_with_gps.yaml') 
-  robot_name_in_urdf = 'turtlebot'
+  robot_name_in_urdf = 'turtlebot3_waffle'
   world_file_name = 'gps_world.world'
   world_path = os.path.join(pkg_share, 'worlds', world_file_name)
   
@@ -134,13 +134,16 @@ def generate_launch_description():
                 ('/set_pose', '/initialpose')])
 
   # Subscribe to the joint states of the robot, and publish the 3D pose of each link.
+  with open(default_model_path, 'r') as infp:
+        robot_description = infp.read()
+
   start_robot_state_publisher_cmd = Node(
     condition=IfCondition(use_robot_state_pub),
     package='robot_state_publisher',
     executable='robot_state_publisher',
     namespace=namespace,
     parameters=[{'use_sim_time': use_sim_time, 
-    'robot_description': Command(['xacro ', model])}],
+    'robot_description': robot_description}],
     remappings=remappings,
     arguments=[default_model_path])
 
